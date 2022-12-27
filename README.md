@@ -130,17 +130,17 @@ y_train = y_train.astype("float32")
 y_test = y_test.astype("float32")
 ```
 
-다음 코드를 통해 학습을 진행하고 test set을 통해 평가를 진행한다.
+다음 코드를 통해 학습을 진행하고 test set을 통해 평가를 진행한다. Supervised loss는 Cross entropy, Unsupervised loss는 MSE를 사용했다. Batch size는 300, epoch은 300으로 설정하였다.
 ```python
 with tf.device('/device:GPU:0'):
     model.compile(
         optimizer = keras.optimizers.Adam(learning_rate=0.003),
-        loss = [Crossentropy,MSE],
+        loss = [losses.Categorical_Crossentropy,losses.MSE],
         loss_weights = [w1,w2],
         metrics = ['accuracy']
     )
 
-    history = model.fit(X_train, y_train, batch_size=300, epochs=3,callbacks=[Dynamic_loss_weights(w1,w2)],use_multiprocessing=True)
+    history = model.fit(X_train, y_train, batch_size=300, epochs=300,callbacks=[Dynamic_loss_weights(w1,w2)],use_multiprocessing=True)
     test_scores = model.evaluate(X_test,y_test,verbose=2)
     print("Test loss:", test_scores[0])
     print("Test accuracy:", test_scores[4])
@@ -148,3 +148,11 @@ with tf.device('/device:GPU:0'):
 
 
 ## 4. Discussion
+
+해당 튜토리얼을 통해 $\Pi$-Model을 구현하고자 했으나, 여러가지 한계점들로 인해 완벽히 구현하는 것에 성공하지 못했다.
+ 
+ 첫번째로 keras에서는 loss를 설정할 때 input으로 y_pred, y_true 만을 받아서 사용해야 하기 때문에 $\Pi$-Model의 unsupervised loss 계산 방식인 각 모델의 output 간 MSE 계산하는 것이 어려웠다. 이를 해결하기 위해 두 모델의 출력을 빼주는 layer를 만들어 해결하고자 했으나 model.fit 과정에서 loss를 batch 단위로 계산하기 때문에 이부분에서 제대로 된 loss가 계산되지 않았다.
+ 
+ 두번째로 keras의 model.add_loss() 함수를 이용해 두 모델의 output간 MSE를 loss로 설정할 수 있었으나, 이 경우 supervised loss와 unsupervised loss의 weighted sum을 구현할 수 없었다. 
+ 
+ 마지막으로 
