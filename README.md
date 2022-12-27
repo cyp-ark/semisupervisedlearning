@@ -122,12 +122,9 @@ y_train = keras.utils.to_categorical(y_train, 10)
 y_test = keras.utils.to_categorical(y_test, 10)
 
 idx_0 = random.sample(range(50000),45000)
-idx_00 = random.sample(range(10000),9000)
 
 y_train[idx_0] = [0,0,0,0,0,0,0,0,0,0]
-y_test[idx_00] = [0,0,0,0,0,0,0,0,0,0]
 y_train = y_train.astype("float32")
-y_test = y_test.astype("float32")
 ```
 
 다음 코드를 통해 학습을 진행하고 test set을 통해 평가를 진행한다. Supervised loss는 Cross entropy, Unsupervised loss는 MSE를 사용했다. Batch size는 300, epoch은 300으로 설정하였다.
@@ -155,4 +152,6 @@ with tf.device('/device:GPU:0'):
  
  두번째로 keras의 model.add_loss() 함수를 이용해 두 모델의 output간 MSE를 loss로 설정할 수 있었으나, 이 경우 supervised loss와 unsupervised loss의 weighted sum을 구현할 수 없었다. 
  
- 마지막으로 
+ 마지막으로 unlabeled data를 표현하기 위해 label을 모두 0인 벡터로 설정할 경우 모델에서 어떤 y_pred 값이 출력되던 간에 무조건 맞췄다고 판단한다는 것이다. 이를 해결하기 위해서는 labeled data와 unlabeled data를 따로 분리해 훈련해야 하면 해결이 될 것 같지만, 이 경우 semi-supervised learning의 본래 목적과 맞지 않기 때문에 적절하지 않다고 생각한다. 따라서 이후에 모델을 보완한다면 unlabeled data에 대한 masking을 어떻게 해야할 것인가에 대한 고민이 필요할 것이다.
+ 
+ $\Pi$-Model을 구현하고자 노력하였으나 구현에 성공하지 못한점이 아쉽고, 그 이유 중 하나는 tensorflow나 pytorch 등 deep learning framework를 많이 다루어보지 못한 점이 있다고 한다. 이후에 실력이 더욱 발전한디면 이번에 구현하고자 노력한 모델을 보완해 제대로 구현하고 싶다.
